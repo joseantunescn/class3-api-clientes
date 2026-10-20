@@ -1,16 +1,18 @@
 package br.com.cotiinformatica.api_clientes.controllers;
 
+import br.com.cotiinformatica.api_clientes.dtos.ClienteRequest;
+import br.com.cotiinformatica.api_clientes.dtos.ClienteResponse;
 import br.com.cotiinformatica.api_clientes.entities.Cliente;
 import br.com.cotiinformatica.api_clientes.repositories.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
 
@@ -18,27 +20,32 @@ public class ClienteController {
     private ClienteRepository clienteRepository;
 
     @PostMapping
-    private Map<String, Object> post(
-            @RequestParam String nome,
-            @RequestParam String email,
-            @RequestParam String cpf,
-            @RequestParam Integer planoId
-    ) throws Exception {
+    private ResponseEntity<?> post(@RequestBody ClienteRequest request) {
 
         var cliente = new Cliente();
 
-        cliente.setNome(nome);
-        cliente.setEmail(email);
-        cliente.setCpf(cpf);
-        cliente.setPlanoId(planoId);
+        cliente.setNome(request.nome());
+        cliente.setEmail(request.email());
+        cliente.setCpf(request.cpf());
+        cliente.setPlanoId(request.planoId());
 
-        var id = clienteRepository.createCliente(cliente);
+        try {
+            var id = clienteRepository.createCliente(cliente);
 
-        return Map.of(
-                "mensagem", "Cliente cadastrado com sucesso.",
-                "id", id
+            var response = new ClienteResponse(id, cliente.getNome(), cliente.getEmail(), cliente.getCpf(), cliente.getPlanoId(), LocalDateTime.now());
 
-        );
+
+            var result = Map.of(
+                    "mensagem", "Cliente cadastrado com sucesso.",
+                    "cliente", response
+
+            );
+
+            return ResponseEntity.status(201).body(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Falha: " + e.getMessage()  );
+        }
 
     }
 }

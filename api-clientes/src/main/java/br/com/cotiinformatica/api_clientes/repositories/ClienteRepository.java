@@ -25,6 +25,7 @@ public class ClienteRepository {
             statement.setString(2, cliente.getEmail());
             statement.setString(3, cliente.getCpf());
             statement.setInt(4, cliente.getPlanoId());
+            statement.execute();
 
             var result = statement.getGeneratedKeys();
             if(result.next())

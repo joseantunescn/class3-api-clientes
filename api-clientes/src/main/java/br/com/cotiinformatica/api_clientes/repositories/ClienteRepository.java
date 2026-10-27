@@ -45,8 +45,8 @@ public class ClienteRepository {
         try (var connection = connectionFactory.createConnection()) {
 
             var statement = connection.prepareStatement("""
-                UPDATE CLIENTES SET NOME=?, EMAIL=?, CPF=?, PLANO-ID=?
-                WHERE ID=?
+                UPDATE CLIENTES SET NOME=?, EMAIL=?, CPF=?, PLANO_ID=?
+                WHERE ID=? AND ATIVO = 1
                 """);
 
             statement.setString(1, cliente.getNome());
